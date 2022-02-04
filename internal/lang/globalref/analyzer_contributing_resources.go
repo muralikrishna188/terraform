@@ -41,6 +41,35 @@ func (a *Analyzer) ContributingResources(refs ...Reference) []addrs.AbsResource 
 	return ret
 }
 
+// ContributingResourceAtributes takes the result of ContributingResources and
+// converts them to pairs of absolute resources and attributes paths for
+// storage in a plan.
+func (a *Analyzer) ContributingResourceAttributes(refs ...Reference) []addrs.AbsResource {
+	retRefs := a.ContributingResourceReferences(refs...)
+	if len(retRefs) == 0 {
+		return nil
+	}
+
+	uniq := make(map[string]addrs.AbsResource, len(refs))
+	for _, ref := range retRefs {
+		if addr, ok := resourceForAddr(ref.LocalRef.Subject); ok {
+			moduleAddr := ref.ModuleAddr()
+			absAddr := addr.Absolute(moduleAddr)
+			uniq[absAddr.String()] = absAddr
+		}
+	}
+	ret := make([]addrs.AbsResource, 0, len(uniq))
+	for _, addr := range uniq {
+		ret = append(ret, addr)
+	}
+	sort.Slice(ret, func(i, j int) bool {
+		// We only have a sorting function for resource _instances_, but
+		// it'll do well enough if we just pretend we have no-key instances.
+		return ret[i].Instance(addrs.NoKey).Less(ret[j].Instance(addrs.NoKey))
+	})
+	return ret
+}
+
 // ContributingResourceReferences analyzes all of the given references and
 // for each one tries to walk backwards through any named values to find all
 // references to resource attributes that contributed either directly or

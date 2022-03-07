@@ -98,7 +98,7 @@ func (b *Cloud) LocalRun(op *backend.Operation) (*backend.LocalRun, statemgr.Ful
 		}
 
 		log.Printf("[TRACE] cloud: retrieving variables from workspace %s/%s (%s)", remoteWorkspaceName, b.organization, remoteWorkspaceID)
-		tfeVariables, err := b.client.Variables.List(context.Background(), remoteWorkspaceID, tfe.VariableListOptions{})
+		tfeVariables, err := b.client.Variables.List(context.Background(), remoteWorkspaceID, nil)
 		if err != nil && err != tfe.ErrResourceNotFound {
 			diags = diags.Append(fmt.Errorf("error loading variables: %w", err))
 			return nil, nil, diags

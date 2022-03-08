@@ -1092,19 +1092,20 @@ func newMockWorkspaces(client *MockClient) *MockWorkspaces {
 
 func (m *MockWorkspaces) List(ctx context.Context, organization string, options *tfe.WorkspaceListOptions) (*tfe.WorkspaceList, error) {
 	wl := &tfe.WorkspaceList{}
-
 	// Get all the workspaces that match the Search value
 	searchValue := ""
-	if len(options.Search) > 0 {
-		searchValue = options.Search
-	}
-
 	var ws []*tfe.Workspace
 	var tags []string
 
-	if len(options.Tags) > 0 {
-		tags = strings.Split(options.Tags, ",")
+	if options != nil {
+		if len(options.Search) > 0 {
+			searchValue = options.Search
+		}
+		if len(options.Tags) > 0 {
+			tags = strings.Split(options.Tags, ",")
+		}
 	}
+
 	for _, w := range m.workspaceIDs {
 		wTags := make(map[string]struct{})
 		for _, wTag := range w.Tags {

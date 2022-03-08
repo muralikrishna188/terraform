@@ -1135,8 +1135,11 @@ func (m *MockWorkspaces) List(ctx context.Context, organization string, options 
 
 	numPages := (len(ws) / 20) + 1
 	currentPage := 1
-	if options.PageNumber != 0 {
-		currentPage = options.PageNumber
+
+	if options != nil {
+		if options.PageNumber != 0 {
+			currentPage = options.PageNumber
+		}
 	}
 	previousPage := currentPage - 1
 	nextPage := currentPage + 1
